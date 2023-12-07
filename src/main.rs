@@ -27,9 +27,6 @@ fn get_command_output(command: &str, args: Vec<&str>, dir: Option<&str>) -> Stri
         command.current_dir(directory);
     }
 
-    if command.get_program() == "go" {
-        command.env("GOMAXPROCS", "1"); // use only 1 thread like rust's criterion
-    }
     let output = command.output().expect("Failed to execute command").stdout;
     String::from_utf8_lossy(&output).into_owned()
 }
@@ -111,7 +108,7 @@ fn generate_quickchart_url(benchmarks: &[(String, f64)]) -> String {
 }
 fn extract_time_from_rust_output(output: &str, benchmarks: &mut Vec<(String, f64)>) {
     // extract time in microseconds (µs) from Rust output
-    let re = Regex::new(r"(\w+)\s+time:\s+\[([\d.]+)\s+µs").unwrap();
+    let re = Regex::new(r"(\w+)\s+time:\s+\[\d+\.\d+ ns\s+(\d+\.\d+) ns\s+\d+\.\d+ ns\]").unwrap();
 
     for captures in re.captures_iter(output) {
         let benchmark = captures.get(1).unwrap().as_str();
