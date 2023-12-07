@@ -23,6 +23,7 @@ pub fn parse_json(c: &mut Criterion) {
 
     c.bench_function("vrl", |b| {
         b.iter(|| {
+            state.clear();
             // define the initial JSON object for VRL
             let mut target = TargetValue {
                 value: value!({"name": "John", "age": 30}),
