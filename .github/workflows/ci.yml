@@ -1,0 +1,38 @@
+name: Rust Parsers Benchmark CI
+
+on: [push]
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          version: 1.70.0
+
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.19'
+
+      - name: Run benchmark and update README
+        run: |
+          cargo run --release
+          # Check if there are any changes
+          if [[ `git status --porcelain` ]]; then
+            git config --global user.name 'GitHub Actions'
+            git config --global user.email 'actions@github.com'
+            git add README.md
+            git commit -m "Update README with benchmark results"
+            git push
+          else
+            echo "No changes to README.md"
+          fi
