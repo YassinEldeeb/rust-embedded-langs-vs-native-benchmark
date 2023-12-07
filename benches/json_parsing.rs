@@ -18,6 +18,8 @@ pub fn parse_json(c: &mut Criterion) {
 
     // compile the program outside the loop
     let result = vrl::compiler::compile(src, &fns).unwrap();
+    let mut state = RuntimeState::default();
+    let timezone = TimeZone::default();
 
     c.bench_function("vrl", |b| {
         b.iter(|| {
@@ -28,8 +30,6 @@ pub fn parse_json(c: &mut Criterion) {
                 secrets: Secrets::default(),
             };
 
-            let mut state = RuntimeState::default();
-            let timezone = TimeZone::default();
             let mut ctx = Context::new(&mut target, &mut state, &timezone);
 
             // Execute the VRL program
