@@ -1,5 +1,7 @@
 # JSON Transformations - Native vs VRL vs Rhai 
 
+> Note: benchmarks are ran within GitHub CI which might introduce a bit of noise, though, we can make a bold assumption that noise that will affect one will affect others. Since the benchmark only lasts a few seconds each.
+
 | Benchmark | Time (in µs) |
 |-----------|------|
 | Native | 209 |
