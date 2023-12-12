@@ -39,7 +39,7 @@ fn extract_benchmarks(rust_output: &str) -> Vec<(String, f64)> {
 
 fn generate_readme(benchmarks: &[(String, f64)], chart_url: &str, rust_output: &str) -> String {
     format!(
-        "# JSON Transformations - Native vs VRL \n\n\
+        "# JSON Transformations - Native vs VRL vs Rhai \n\n\
         | Benchmark | Time (in µs) |\n\
         |-----------|------|\n\
         {}\n\n\
@@ -108,16 +108,28 @@ fn generate_quickchart_url(benchmarks: &[(String, f64)]) -> String {
 }
 fn extract_time_from_rust_output(output: &str, benchmarks: &mut Vec<(String, f64)>) {
     // extract time in microseconds (µs) from Rust output
-    let re = Regex::new(r"(\w+)\s+time:\s+\[\d+\.\d+ ns\s+(\d+\.\d+) ns\s+\d+\.\d+ ns\]").unwrap();
+    let re =
+        Regex::new(r"(\w+)\s+time:\s+\[\d+\.\d+ (µs|ns)\s+(\d+\.\d+) (µs|ns)\s+\d+\.\d+ (µs|ns)\]")
+            .unwrap();
 
     for captures in re.captures_iter(output) {
         let benchmark = captures.get(1).unwrap().as_str();
+        let time_unit = captures.get(2).unwrap().as_str();
         let time = captures
-            .get(2)
+            .get(3)
             .unwrap()
             .as_str()
             .parse::<f64>()
             .unwrap_or(f64::MAX);
-        benchmarks.push((format!("Rust - {}", benchmark), time));
+
+        // convert time from µs to ns if necessary
+        let time_ns = if time_unit == "µs" {
+            time * 1000.0
+        } else {
+            time
+        };
+        let rounded_time_ns = format!("{:.1}", time_ns).parse::<f64>().unwrap();
+
+        benchmarks.push((format!("{}", benchmark), rounded_time_ns));
     }
 }
